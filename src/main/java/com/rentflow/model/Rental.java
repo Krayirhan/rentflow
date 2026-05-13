@@ -1,21 +1,46 @@
 package com.rentflow.model;
 
 import com.rentflow.enums.RentalStatus;
+import jakarta.persistence.*;
 
 import java.time.LocalDate;
 
+@Entity
+@Table(name = "rentals")
 public class Rental {
 
+    @Id
     private String id;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "customer_id", nullable = false)
     private Customer customer;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "vehicle_plate", nullable = false)
     private Vehicle vehicle;
+
+    @Column(nullable = false)
     private LocalDate startDate;
+
+    @Column(nullable = false)
     private LocalDate endDate;
+
+    @Column(nullable = false)
     private double totalPrice;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private RentalStatus status;
+
     private LocalDate actualReturnDate;
+
     private double lateFee;
+
     private double finalPrice;
+
+    public Rental() {
+    }
 
     public Rental(
             String id,

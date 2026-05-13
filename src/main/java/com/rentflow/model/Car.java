@@ -1,10 +1,19 @@
 package com.rentflow.model;
 
 import com.rentflow.enums.VehicleStatus;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
 
+@Entity
+@Table(name = "cars")
 public class Car extends Vehicle {
 
+    @Column(nullable = false)
     private int seatCount;
+
+    public Car() {
+    }
 
     public Car(String plate, String brand, String model, int year, double dailyPrice, int seatCount) {
         this(plate, brand, model, year, dailyPrice, seatCount, VehicleStatus.AVAILABLE);

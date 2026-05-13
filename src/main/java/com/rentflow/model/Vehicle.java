@@ -1,15 +1,35 @@
 package com.rentflow.model;
 
 import com.rentflow.enums.VehicleStatus;
+import jakarta.persistence.*;
 
+@Entity
+@Table(name = "vehicles")
+@Inheritance(strategy = InheritanceType.JOINED)
+@DiscriminatorColumn(name = "vehicle_type", discriminatorType = DiscriminatorType.STRING)
 public abstract class Vehicle {
 
+    @Id
     private String plate;
+
+    @Column(nullable = false)
     private String brand;
+
+    @Column(nullable = false)
     private String model;
+
+    @Column(nullable = false)
     private int year;
+
+    @Column(nullable = false)
     private double dailyPrice;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private VehicleStatus status;
+
+    public Vehicle() {
+    }
 
     public Vehicle(String plate, String brand, String model, int year, double dailyPrice) {
         this(plate, brand, model, year, dailyPrice, VehicleStatus.AVAILABLE);
