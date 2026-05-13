@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RentFlow Exception Audit Report</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 40px 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        h1 {
+            color: #333;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #666;
+            font-size: 1.1em;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            background: #10b981;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            margin-top: 15px;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+        
+        .status-badge.error {
+            background: #ef4444;
+        }
+        
+        .status-badge.warning {
+            background: #f59e0b;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            border-left: 5px solid #667eea;
+        }
+        
+        .card h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+        }
+        
+        .check-list {
+            list-style: none;
+        }
+        
+        .check-list li {
+            padding: 10px 0;
+            display: flex;
+            align-items: center;
+            font-size: 1em;
+            color: #333;
+        }
+        
+        .check-list li::before {
+            content: "✅";
+            margin-right: 12px;
+            font-size: 1.2em;
+        }
+        
+        .check-list li.error::before {
+            content: "❌";
+        }
+        
+        .check-list li.error {
+            color: #ef4444;
+        }
+        
+        .exception-hierarchy {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        
+        .hierarchy-tree {
+            font-family: 'Courier New', monospace;
+            font-size: 1em;
+            line-height: 1.8;
+            color: #333;
+        }
+        
+        .hierarchy-level-0 {
+            font-weight: bold;
+            color: #667eea;
+        }
+        
+        .hierarchy-level-1 {
+            margin-left: 20px;
+            color: #764ba2;
+        }
+        
+        .hierarchy-level-2 {
+            margin-left: 40px;
+            color: #10b981;
+        }
+        
+        .table-section {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+        
+        .table-section h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.95em;
+        }
+        
+        th {
+            background: #f3f4f6;
+            color: #333;
+            font-weight: bold;
+            padding: 15px;
+            text-align: left;
+            border-bottom: 2px solid #e5e7eb;
+        }
+        
+        td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        tr:hover {
+            background: #f9fafb;
+        }
+        
+        .status-ok {
+            color: #10b981;
+            font-weight: bold;
+        }
+        
+        .status-error {
+            color: #ef4444;
+            font-weight: bold;
+        }
+        
+        .footer {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            text-align: center;
+            color: #666;
+        }
+        
+        .footer .status {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #10b981;
+            margin-bottom: 10px;
+        }
+        
+        .summary-box {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+        }
+        
+        .summary-item {
+            text-align: center;
+        }
+        
+        .summary-item .number {
+            font-size: 2em;
+            font-weight: bold;
+        }
+        
+        .summary-item .label {
+            font-size: 0.9em;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🎯 RentFlow Exception Audit Report</h1>
+            <p class="subtitle">Kapsamlı Exception Yapısı Denetimi - 13 Mayıs 2026</p>
+            <span class="status-badge">✅ AUDIT PASSED</span>
+        </div>
+        
+        <!-- Summary -->
+        <div class="summary-box">
+            <div class="summary-item">
+                <div class="number">8/8</div>
+                <div class="label">Exception Dosyası</div>
+            </div>
+            <div class="summary-item">
+                <div class="number">22/22</div>
+                <div class="label">Test Geçti</div>
+            </div>
+            <div class="summary-item">
+                <div class="number">0</div>
+                <div class="label">Değişiklik Yapıldı</div>
+            </div>
+            <div class="summary-item">
+                <div class="number">100%</div>
+                <div class="label">Uyum Oranı</div>
+            </div>
+        </div>
+        
+        <!-- Exception Hierarchy -->
+        <div class="exception-hierarchy">
+            <h3>📊 Exception Hierarchy Yapısı</h3>
+            <div class="hierarchy-tree">
+                <div class="hierarchy-level-0">
+                    IllegalArgumentException (Java Built-in)
+                    <div style="margin-top: 10px;">
+                        <div class="hierarchy-level-1">
+                            └─ <strong>RentFlowException</strong> ✅
+                            <div style="margin-top: 8px;">
+                                <div class="hierarchy-level-2">├─ ValidationException ✅</div>
+                                <div class="hierarchy-level-2">├─ DuplicateResourceException ✅</div>
+                                <div class="hierarchy-level-2">├─ ResourceNotFoundException ✅</div>
+                                <div class="hierarchy-level-2">├─ VehicleNotAvailableException ✅</div>
+                                <div class="hierarchy-level-2">├─ InvalidVehicleStateException ✅</div>
+                                <div class="hierarchy-level-2">└─ InvalidRentalDateException ✅</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="hierarchy-level-1" style="margin-top: 15px;">
+                    RuntimeException (Java Built-in)
+                    <div style="margin-top: 10px;">
+                        <div class="hierarchy-level-2">
+                            └─ ConsoleInputClosedException ✅ (Mevcut davranış korunmuş)
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Audit Checklist -->
+        <div class="grid">
+            <div class="card">
+                <h3>📁 Exception Dosyaları</h3>
+                <ul class="check-list">
+                    <li>RentFlowException.java</li>
+                    <li>ValidationException.java</li>
+                    <li>DuplicateResourceException.java</li>
+                    <li>ResourceNotFoundException.java</li>
+                    <li>VehicleNotAvailableException.java</li>
+                    <li>InvalidVehicleStateException.java</li>
+                    <li>InvalidRentalDateException.java</li>
+                    <li>ConsoleInputClosedException.java</li>
+                </ul>
+            </div>
+            
+            <div class="card">
+                <h3>✅ Hierarchy Doğruluğu</h3>
+                <ul class="check-list">
+                    <li>RentFlowException extends IllegalArgumentException</li>
+                    <li>ValidationException extends RentFlowException</li>
+                    <li>DuplicateResourceException extends RentFlowException</li>
+                    <li>ResourceNotFoundException extends RentFlowException</li>
+                    <li>VehicleNotAvailableException extends RentFlowException</li>
+                    <li>InvalidVehicleStateException extends RentFlowException</li>
+                    <li>InvalidRentalDateException extends RentFlowException</li>
+                    <li>ConsoleInputClosedException extends RuntimeException</li>
+                </ul>
+            </div>
+            
+            <div class="card">
+                <h3>🔍 Service Denetimi</h3>
+                <ul class="check-list">
+                    <li>VehicleService: 10/10 ✓</li>
+                    <li>CustomerService: 5/5 ✓</li>
+                    <li>RentalService: 6/6 ✓</li>
+                    <li>IllegalArgumentException bulunmadı</li>
+                    <li>Derleme: BAŞARILI</li>
+                    <li>Test: 22/22 GEÇTI</li>
+                </ul>
+            </div>
+        </div>
+        
+        <!-- VehicleService Exception Usage -->
+        <div class="table-section">
+            <h3>🚗 VehicleService - Exception Kullanımları (10 kontrol)</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Durum</th>
+                        <th>Exception</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Aynı plaka varsa</td>
+                        <td>DuplicateResourceException</td>
+                        <td class="status-ok">✅</td>
+                    </tr>
+                    <tr>
+                        <td>Araç bulunamazsa</td>
+                        <td>ResourceNotFoundException</td>
+                        <td class="status-ok">✅</td>
+                    </tr>
+                    <tr>
+                        <td>Gün sayısı 0 veya negatif</td>
+                        <td>ValidationException</td>
+                        <td class="status-ok">✅</td>
+                    </tr>
+                    <tr>
+                        <td>Araç kiralanmak isteniyor ama müsait değil</td>
+                        <td>VehicleNotAvailableException</td>
+                        <td class="status-ok">✅</td>
+                    </tr>
+                    <tr>
+                        <td>Araç iade edilmek isteniyor ama zaten müsaitse</td>
+                        <td>InvalidVehicleStateException</td>
+                        <td class="status-ok">✅</td>
+                    </tr>
+                    <tr>
+                        <td>Plaka boş</td>
+                        <td>ValidationException</td>
+                        <td class="status-ok">✅</td>
+                    </tr>
+                    <tr>
+                        <td>Marka boş</td>
+                        <td>ValidationException</td>
+                        <td class="status-ok">✅</td>
+                    </tr>
+                    <tr>
+                        <td>Model boş</td>
+                        <td>ValidationException</td>
+                        <td class="status-ok">✅</td>
+                    </tr>
+                    <tr>
+                        <td>Araç yılı geçersiz</td>
+                        <td>ValidationException</td>
+                        <td class="status-ok">✅</td>
+                    </tr>
+                    <tr>
+                        <td>Günlük fiyat 0 veya negatif</td>
+                        <td>ValidationException</td>
+                        <td class="status-ok">✅</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- CustomerService Exception Usage -->
+        <div class="table-section">
+            <h3>👤 CustomerService - Exception Kullanımları (5 kontrol)</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Durum</th>
+                        <th>Exception</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Aynı müşteri id varsa</td>
+                        <td>DuplicateResourceException</td>
+                        <td class="status-ok">✅</td>
+                    </tr>
+                    <tr>
+                        <td>Müşteri bulunamazsa</td>
+                        <td>ResourceNotFoundException</td>
+                        <td class="status-ok">✅</td>
+                    </tr>
+                    <tr>
+                        <td>Müşteri id boş</td>
+                        <td>ValidationException</td>
+                        <td class="status-ok">✅</td>
+                    </tr>
+                    <tr>
+                        <td>Müşteri adı boş</td>
+                        <td>ValidationException</td>
+                        <td class="status-ok">✅</td>
+                    </tr>
+                    <tr>
+                        <td>Telefon numarası boş</td>
+                        <td>ValidationException</td>
+                        <td class="status-ok">✅</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- RentalService Exception Usage -->
+        <div class="table-section">
+            <h3>📅 RentalService - Exception Kullanımları (6 kontrol)</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Durum</th>
+                        <th>Exception</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Başlangıç tarihi null</td>
+                        <td>InvalidRentalDateException</td>
+                        <td class="status-ok">✅</td>
+                    </tr>
+                    <tr>
+                        <td>Bitiş tarihi null</td>
+                        <td>InvalidRentalDateException</td>
+                        <td class="status-ok">✅</td>
+                    </tr>
+                    <tr>
+                        <td>Bitiş tarihi başlangıç tarihinden sonra değil</td>
+                        <td>InvalidRentalDateException</td>
+                        <td class="status-ok">✅</td>
+                    </tr>
+                    <tr>
+                        <td>Kiralanmak istenen araç müsait değil</td>
+                        <td>VehicleNotAvailableException</td>
+                        <td class="status-ok">✅</td>
+                    </tr>
+                    <tr>
+                        <td>Aktif kiralama bulunamazsa</td>
+                        <td>ResourceNotFoundException</td>
+                        <td class="status-ok">✅</td>
+                    </tr>
+                    <tr>
+                        <td>Kiralama kaydı id ile bulunamazsa</td>
+                        <td>ResourceNotFoundException</td>
+                        <td class="status-ok">✅</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Build & Test Results -->
+        <div class="table-section">
+            <h3>🧪 Derleme ve Test Sonuçları</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Kontrol</th>
+                        <th>Sonuç</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>mvn clean compile</td>
+                        <td>BUILD SUCCESS (31 dosya derlenmiş)</td>
+                        <td class="status-ok">✅</td>
+                    </tr>
+                    <tr>
+                        <td>mvn test</td>
+                        <td>22/22 Test PASSED</td>
+                        <td class="status-ok">✅</td>
+                    </tr>
+                    <tr>
+                        <td>Test sınıfları</td>
+                        <td>RentFlowConsoleEndToEndTest, RentFlowServiceEndToEndTest, RentFlowValidationTest</td>
+                        <td class="status-ok">✅</td>
+                    </tr>
+                    <tr>
+                        <td>Java Sürümü</td>
+                        <td>Java 17 (javac [debug target 17])</td>
+                        <td class="status-ok">✅</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- Final Summary -->
+        <div class="footer">
+            <div class="status">✅ AUDIT BAŞARILI - PROJE PRODUCTION'A HAZIR</div>
+            <p>Denetim Tarihi: 13 Mayıs 2026</p>
+            <p>Değişen Dosya Sayısı: <strong>0</strong></p>
+            <p>Tüm exception'lar doğru şekilde uygulanmıştır.</p>
+        </div>
+    </div>
+</body>
+</html>
