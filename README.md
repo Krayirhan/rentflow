@@ -1,11 +1,18 @@
 # RentFlow
 
-RentFlow, Java 17 ile gelistirilmis katmanli mimariye sahip bir console tabanli arac kiralama sistemidir.
+RentFlow, Java 17 ile gelistirilmis katmanli mimariye sahip bir arac kiralama sistemidir.
 
 Bu proje; Java OOP, service-repository mimarisi, exception yonetimi, Maven ve JUnit testleri ogrenmek amaciyla gelistirilmistir.
 
+**Sürüm 2.0**: JavaFX GUI ile masaüstü uygulaması
+
 ## Ozellikler
 
+- **GUI Arayüzü (JavaFX)**
+  - Tabbed interface
+  - Araba ve motosiklet kiralama
+  - Müşteri ve araç yönetimi
+  - Kiralama işlemleri
 - Arac ekleme
   - Car
   - Motorcycle
@@ -26,9 +33,9 @@ Bu proje; Java OOP, service-repository mimarisi, exception yonetimi, Maven ve JU
 ## Kullanilan Teknolojiler
 
 - Java 17
+- JavaFX 21
 - Maven
 - JUnit 5
-- Console Application
 - OOP
 - Repository Pattern
 - Service Layer Pattern
@@ -38,16 +45,34 @@ Bu proje; Java OOP, service-repository mimarisi, exception yonetimi, Maven ve JU
 ```text
 src/main/java/com/rentflow
 ├── app
+│   ├── Main.java (Console - Legacy)
+│   ├── RentFlowApplication.java (JavaFX GUI)
+│   └── DataInitializer.java
 ├── enums
 ├── exception
 ├── model
 ├── repository
 ├── service
-└── ui
-    ├── menu
-    ├── controller
-    ├── input
-    └── printer
+├── ui
+│   ├── console (Legacy)
+│   │   ├── menu
+│   │   ├── controller
+│   │   ├── input
+│   │   └── printer
+│   └── fx (JavaFX GUI)
+│       ├── MainWindow.java
+│       ├── tab
+│       │   ├── VehicleTab.java
+│       │   ├── CustomerTab.java
+│       │   └── RentalTab.java
+│       ├── dialog
+│       │   ├── AddVehicleDialog.java
+│       │   ├── AddCustomerDialog.java
+│       │   ├── CalculatePriceDialog.java
+│       │   └── RentVehicleDialog.java
+│       └── util
+│           └── AlertUtil.java
+└── persistence
 ```
 
 ## Katmanlar
@@ -152,17 +177,18 @@ Projeyi test et:
 mvn clean test
 ```
 
-Uygulamayi calistir:
+**GUI Uygulamasini calistir:**
 
 ```bash
-mvn clean compile exec:java -Dexec.mainClass=com.rentflow.app.Main
+mvn javafx:run
 ```
 
-veya IDE uzerinden `Main.java` dosyasini calistirabilirsin.
+Ardindan IDE uzerinden `RentFlowApplication.java` dosyasini da calistirabilirsin.
 
-Ana sinif:
+Ana siniflar:
 
-`com.rentflow.app.Main`
+- **GUI**: `com.rentflow.app.RentFlowApplication`
+- **Console** (legacy): `com.rentflow.app.Main`
 
 ## Testler
 

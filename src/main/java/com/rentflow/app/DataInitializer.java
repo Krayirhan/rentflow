@@ -18,6 +18,11 @@ public class DataInitializer {
         this.customerService = customerService;
     }
 
+    public static void initialize(VehicleService vehicleService, CustomerService customerService) {
+        DataInitializer initializer = new DataInitializer(vehicleService, customerService);
+        initializer.seed();
+    }
+
     public void seed() {
         if (!vehicleService.getAllVehicles().isEmpty() || !customerService.getAllCustomers().isEmpty()) {
             return;
