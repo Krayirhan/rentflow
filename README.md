@@ -1,10 +1,10 @@
 # RentFlow
 
-RentFlow, Java 17 ile gelistirilmis katmanli mimariye sahip bir arac kiralama sistemidir.
+RentFlow, Java 17 ile gelistirilmis katmanli mimariye sahip ve **masaüstü uygulaması** olarak tasarlanan bir arac kiralama sistemidir.
 
-Bu proje; Java OOP, service-repository mimarisi, exception yonetimi, Maven, JUnit testleri ve Spring Boot REST API ogrenmek amaciyla gelistirilmistir.
+Bu proje; Java OOP, service-repository mimarisi, exception yonetimi, Maven, JUnit testleri, Spring Boot REST API, JavaFX GUI ve PostgreSQL database ogrenmek amaciyla gelistirilmistir.
 
-**Sürüm 3.0**: Spring Boot REST API ile backend hizmeti
+**Sürüm 4.0**: PostgreSQL Production Database ile complete backend + JavaFX GUI
 
 ## Ozellikler
 
@@ -38,6 +38,10 @@ Bu proje; Java OOP, service-repository mimarisi, exception yonetimi, Maven, JUni
 
 - Java 17
 - Spring Boot 3.2
+- Spring Data JPA
+- PostgreSQL (Production)
+- H2 (Development/Testing)
+- Flyway (Database Migration)
 - JavaFX 21
 - Maven
 - JUnit 5
@@ -192,8 +196,20 @@ mvn clean test
 
 **REST API'yi başlat (Spring Boot):**
 
+**Development (H2 In-Memory Database):**
 ```bash
+mvn spring-boot:run -Dspring-boot.run.arguments="--spring.profiles.active=dev"
+# veya default olarak:
 mvn spring-boot:run
+```
+
+**Production (PostgreSQL Database):**
+```bash
+# Önce PostgreSQL'i kuruu ve rentflow database'i olustur:
+# createdb -U postgres rentflow
+
+# Sonra application'ı prod profiliyle calistir:
+mvn spring-boot:run -Dspring-boot.run.arguments="--spring.profiles.active=prod"
 ```
 
 Ardindan Postman'da şu endpoint'lere istek gönderebilirsin:
@@ -201,6 +217,12 @@ Ardindan Postman'da şu endpoint'lere istek gönderebilirsin:
 - GET http://localhost:8080/api/customers
 - GET http://localhost:8080/api/rentals
 - POST http://localhost:8080/api/vehicles (JSON body ile)
+
+**H2 Console Erişim (Sadece dev profili):**
+- http://localhost:8080/h2-console
+- JDBC URL: jdbc:h2:mem:rentflowdb
+- Username: sa
+- Password: (boş)
 
 **GUI Uygulamasini calistir (JavaFX):**
 
@@ -286,33 +308,37 @@ Bu proje ile pratik edilen Java/OOP konulari:
 
 ## Mevcut Durum
 
-RentFlow su anda Java OOP backend + frontend v3.0 seviyesindedir.
+RentFlow su anda masaüstü uygulaması v4.0 seviyesindedir.
 
 Tamamlananlar:
 
-- Katmanli mimari
-- UI refactor (Console + JavaFX GUI)
+- Katmanli mimari (3-layer architecture)
+- Desktop UI (Console + JavaFX GUI)
 - Repository-Service ayrimi
 - Musteri, arac ve kiralama domain yapisi
 - Ozel exception sistemi
 - Maven + JUnit test altyapisi
 - Basarili build ve test sureci
 - CSV ve In-Memory persistence
-- Spring Boot REST API
+- Spring Boot REST API (v3.0)
 - Global exception handling
 - Service interface'leri
+- **PostgreSQL + H2 Database Integration (v4.0)**
+  - JPA Entity mapping (JOINED inheritance)
+  - Flyway database migration
+  - Profile-based configuration (dev/prod)
+  - Connection pooling (HikariCP)
 
 ## Gelecek Gelistirmeler
 
 Planlanan olasi gelistirmeler:
 
-- Database (PostgreSQL/MySQL) entegrasyonu
-- JPA/Hibernate ORM
-- Authentication ve Authorization (JWT)
-- React web UI
-- Docker containerization
-- CI/CD pipeline (GitHub Actions)
-- Load testing ve performance optimization
+- JWT Authentication
+- Desktop Application Packaging (JAR, Windows Installer)
+- Application Deployment & Distribution
+- Advanced Search ve Filtering
+- User Profile Management
+- Late Fee Calculation & Reporting
 - Daha detayli kiralama raporlari
 - Gec iade cezasi
 - Hasar ucreti
