@@ -155,10 +155,10 @@ mvn clean test
 Uygulamayi calistir:
 
 ```bash
-mvn compile
+mvn clean compile exec:java -Dexec.mainClass=com.rentflow.app.Main
 ```
 
-Ardindan IDE uzerinden `Main.java` dosyasini calistirabilirsin.
+veya IDE uzerinden `Main.java` dosyasini calistirabilirsin.
 
 Ana sinif:
 
@@ -241,13 +241,18 @@ Tamamlananlar:
 - Ozel exception sistemi
 - Maven + JUnit test altyapisi
 - Basarili build ve test sureci
+- CSV veya JSON ile kalici veri saklama
+- Repository interface ayriminin genisletilmesi
 
 ## Gelecek Gelistirmeler
 
 Planlanan olasi gelistirmeler:
 
-- CSV veya JSON ile kalici veri saklama
-- Repository interface ayriminin genisletilmesi
+- Spring Boot framework'e migration
+- REST API layer
+- Veritabani (PostgreSQL/MySQL) entegrasyonu
+- Authentication ve Authorization
+- Docker containerization
 - Daha detayli kiralama raporlari
 - Gec iade cezasi
 - Hasar ucreti
