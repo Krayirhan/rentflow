@@ -4,35 +4,45 @@ RentFlow, Java 17 ile gelistirilmis katmanli mimariye sahip ve **masaüstü uygu
 
 Bu proje; Java OOP, service-repository mimarisi, exception yonetimi, Maven, JUnit testleri, Spring Boot REST API, JavaFX GUI ve PostgreSQL database ogrenmek amaciyla gelistirilmistir.
 
-**Sürüm 4.0**: PostgreSQL Production Database ile complete backend + JavaFX GUI
+**Sürüm 4.0**: PostgreSQL Production Database + JWT Authentication + Desktop Ready
 
 ## Ozellikler
 
-- **REST API (Spring Boot)** ✨ NEW
-  - Vehicle endpoints
-  - Customer endpoints  
-  - Rental endpoints
-- **GUI Arayüzü (JavaFX)**
-  - Tabbed interface
-  - Araba ve motosiklet kiralama
-  - Müşteri ve araç yönetimi
-  - Kiralama işlemleri
-- Arac ekleme
-  - Car
-  - Motorcycle
-- Arac listeleme
-- Plakaya gore arac arama
-- Arac kira ucreti hesaplama
-- Musteri ekleme
-- Musteri listeleme
-- Id'ye gore musteri arama
-- Musteriye arac kiralama
-- Arac iade etme
-- Kiralama kayitlarini listeleme
-- Musteriye gore kiralama gecmisi listeleme
-- Ozel exception yapisi
-- JUnit ile otomatik testler
-- Maven build sistemi
+- **REST API (Spring Boot)** ✨
+  - Complete CRUD endpoints
+  - Global exception handling
+  - JWT authentication
+- **Desktop GUI (JavaFX)** 🎨
+  - Tabbed interface (Vehicle, Customer, Rental)
+  - Real-time search and filtering
+  - Price calculator
+  - Status indicators
+- **Production Database** 🗄️
+  - PostgreSQL with Flyway migrations
+  - H2 for development/testing
+  - Connection pooling (HikariCP)
+  - User authentication table
+- **Vehicle Management**
+  - Car and Motorcycle types
+  - Daily pricing and rental fee calculation
+  - Vehicle status tracking (Available/Rented)
+- **Customer Management**
+  - Customer registration and search
+  - Phone number uniqueness
+- **Rental Operations**
+  - Rental creation with date validation
+  - Automatic fee calculation
+  - Return processing
+  - Late fee tracking
+  - Rental history by customer
+- **Exception Handling**
+  - Custom exception hierarchy
+  - Global error responses
+- **Security**
+  - JWT token authentication
+  - Role-based authorization (ADMIN/USER)
+  - Password encryption (BCrypt)
+  - Automatic tests (26 test cases)
 
 ## Kullanilan Teknolojiler
 
@@ -54,20 +64,28 @@ Bu proje; Java OOP, service-repository mimarisi, exception yonetimi, Maven, JUni
 
 ```text
 src/main/java/com/rentflow
-├── api (NEW - Spring Boot REST)
+├── api (Spring Boot REST)
 │   ├── RentFlowRestApplication.java
 │   ├── controller/
+│   │   ├── AuthController.java
 │   │   ├── VehicleRestController.java
 │   │   ├── CustomerRestController.java
 │   │   └── RentalRestController.java
+│   ├── dto/
+│   │   ├── LoginRequest.java
+│   │   └── LoginResponse.java
 │   └── handler/
 │       └── GlobalExceptionHandler.java
 ├── app
 │   ├── Main.java (Console - Legacy)
 │   ├── RentFlowApplication.java (JavaFX GUI)
-│   └── DataInitializer.java
+│   ├── DataInitializer.java
+├── security (JWT & Auth)
+│   └── JwtTokenProvider.java
+├── config
+│   └── PasswordEncoderConfig.java
 ├── service
-│   ├── api/ (NEW - Interfaces)
+│   ├── api/ (Interfaces)
 │   │   ├── IVehicleService.java
 │   │   ├── ICustomerService.java
 │   │   └── IRentalService.java
@@ -75,21 +93,31 @@ src/main/java/com/rentflow
 │   ├── CustomerService.java
 │   └── RentalService.java
 ├── enums
-├── exception
-├── model
+│   ├── VehicleStatus.java
+│   └── RentalStatus.java
+├── exception (7 custom exceptions)
+├── model (JPA entities)
+│   ├── Vehicle.java (abstract)
+│   ├── Car.java
+│   ├── Motorcycle.java
+│   ├── Customer.java
+│   ├── Rental.java
+│   └── User.java
 ├── repository
-├── ui
-│   ├── console (Legacy)
-│   │   ├── menu
-│   │   ├── controller
-│   │   ├── input
-│   │   └── printer
-│   └── fx (JavaFX GUI)
-│       ├── MainWindow.java
-│       ├── tab/
-│       ├── dialog/
-│       └── util/
-└── persistence
+│   ├── jpa/ (Spring Data JPA)
+│   └── memory/ (In-Memory implementations)
+└── ui
+    ├── console (Legacy)
+    └── fx (JavaFX GUI)
+
+resources/
+├── application.properties
+├── application-dev.properties
+├── application-prod.properties
+└── db/migration/ (Flyway scripts)
+    ├── V1__Initial_Schema.sql
+    ├── V2__Sample_Data.sql
+    └── V3__Add_Users_Table.sql
 ```
 
 ## Katmanlar
@@ -194,35 +222,77 @@ Projeyi test et:
 mvn clean test
 ```
 
-**REST API'yi başlat (Spring Boot):**
+## Hızlı Başlangıç (Quick Start)
 
-**Development (H2 In-Memory Database):**
+### 1. Build Projesi (One-time)
 ```bash
-mvn spring-boot:run -Dspring-boot.run.arguments="--spring.profiles.active=dev"
-# veya default olarak:
-mvn spring-boot:run
+mvn clean package -DskipTests
 ```
 
-**Production (PostgreSQL Database):**
+### 2. Run Development Mode (H2 In-Memory Database)
 ```bash
-# Önce PostgreSQL'i kuruu ve rentflow database'i olustur:
-# createdb -U postgres rentflow
+# Windows
+run-app.bat dev
 
-# Sonra application'ı prod profiliyle calistir:
+# Linux/macOS
+./run-app.sh dev
+
+# Manual
+mvn spring-boot:run -Dspring-boot.run.arguments="--spring.profiles.active=dev"
+```
+
+### 3. Run Production Mode (PostgreSQL)
+```bash
+# Requires: PostgreSQL server running on localhost:5432
+# Database: rentflow
+# User: rentflow
+# Password: Enter at prompt
+
+# Windows
+run-app.bat prod
+
+# Linux/macOS
+./run-app.sh prod
+
+# Manual
 mvn spring-boot:run -Dspring-boot.run.arguments="--spring.profiles.active=prod"
 ```
 
-Ardindan Postman'da şu endpoint'lere istek gönderebilirsin:
-- GET http://localhost:8080/api/vehicles
-- GET http://localhost:8080/api/customers
-- GET http://localhost:8080/api/rentals
-- POST http://localhost:8080/api/vehicles (JSON body ile)
+### 4. Login Credentials (After Setup)
+- **Default Admin**: username: `admin` | password: `admin123`
+- **Default User**: username: `user` | password: `user123`
 
-**H2 Console Erişim (Sadece dev profili):**
-- http://localhost:8080/h2-console
-- JDBC URL: jdbc:h2:mem:rentflowdb
-- Username: sa
-- Password: (boş)
+## API Documentation
+
+### Authentication
+- **POST** `/auth/login` - Login and get JWT token
+- **GET** `/auth/validate` - Validate JWT token
+
+### Vehicles
+- **GET** `/vehicles` - List all vehicles
+- **GET** `/vehicles/{plate}` - Get vehicle by plate
+- **POST** `/vehicles` - Add new vehicle
+- **GET** `/vehicles/{plate}/price?days=N` - Calculate rental price
+- **PUT** `/vehicles/{plate}/rent` - Mark as rented
+- **PUT** `/vehicles/{plate}/return` - Mark as available
+
+### Customers
+- **GET** `/customers` - List all customers
+- **GET** `/customers/{id}` - Get customer by ID
+- **POST** `/customers` - Add new customer
+
+### Rentals
+- **GET** `/rentals` - List all rentals
+- **GET** `/rentals/{id}` - Get rental by ID
+- **GET** `/rentals/customer/{customerId}` - Get rentals by customer
+- **POST** `/rentals` - Create new rental
+- **PUT** `/rentals/{plate}/return` - Return vehicle
+
+## H2 Console Erişim (Development Only)
+- URL: http://localhost:8080/h2-console
+- JDBC URL: `jdbc:h2:mem:rentflowdb`
+- Username: `sa`
+- Password: (leave blank)
 
 **GUI Uygulamasini calistir (JavaFX):**
 
@@ -308,37 +378,56 @@ Bu proje ile pratik edilen Java/OOP konulari:
 
 ## Mevcut Durum
 
-RentFlow su anda masaüstü uygulaması v4.0 seviyesindedir.
+RentFlow **masaüstü uygulaması v4.0** - Production-Ready:
 
-Tamamlananlar:
+✅ **Completed Sprints:**
+- Sprint 1: Console Application (v1.0)
+- Sprint 2: JavaFX Desktop GUI (v2.0)
+- Sprint 3: Spring Boot REST API (v3.0)
+- Sprint 4: Database Integration (JPA/H2)
+- Sprint 5: PostgreSQL Production Database with Flyway Migrations
+- Sprint 6: JWT Authentication with Login Endpoint
+- Sprint 7: Desktop Application Packaging & Deployment Scripts
 
-- Katmanli mimari (3-layer architecture)
-- Desktop UI (Console + JavaFX GUI)
-- Repository-Service ayrimi
-- Musteri, arac ve kiralama domain yapisi
-- Ozel exception sistemi
-- Maven + JUnit test altyapisi
-- Basarili build ve test sureci
-- CSV ve In-Memory persistence
-- Spring Boot REST API (v3.0)
-- Global exception handling
-- Service interface'leri
-- **PostgreSQL + H2 Database Integration (v4.0)**
-  - JPA Entity mapping (JOINED inheritance)
-  - Flyway database migration
-  - Profile-based configuration (dev/prod)
-  - Connection pooling (HikariCP)
+✅ **Technology Stack:**
+- Java 17 (target version)
+- Spring Boot 3.2.5
+- Spring Data JPA + Hibernate
+- PostgreSQL (production) + H2 (development)
+- Flyway (database migrations)
+- JWT (authentication)
+- JavaFX 21 (desktop GUI)
+- Maven (build system)
+- JUnit 5 (26 test cases, 100% passing)
 
-## Gelecek Gelistirmeler
+✅ **Architecture:**
+- 3-layer: UI (Console/GUI/API) → Service → Repository
+- JPA Entity inheritance (JOINED strategy)
+- Exception hierarchy (7 custom exceptions)
+- Repository pattern with in-memory + JPA implementations
+- Profile-based configuration (dev/prod)
+- Role-based security (ADMIN/USER)
 
-Planlanan olasi gelistirmeler:
+✅ **Deployment Ready:**
+- Executable JAR packaging
+- Windows batch script (run-app.bat)
+- Linux/macOS bash script (run-app.sh)
+- Configuration management (environment variables, profiles)
+- Sample data loading (Flyway V2)
+- User authentication table (Flyway V3)
 
-- JWT Authentication
-- Desktop Application Packaging (JAR, Windows Installer)
-- Application Deployment & Distribution
-- Advanced Search ve Filtering
-- User Profile Management
-- Late Fee Calculation & Reporting
+## Gelecek Gelistirmeler (Optional)
+
+Opsiyonel gelistirmeler (if needed):
+- Desktop installer (WiX for Windows, .dmg for macOS)
+- Application updater mechanism
+- Advanced reporting and analytics
+- Mobile application (React Native)
+- Cloud deployment (Docker, Kubernetes)
+- Advanced search filtering
+- Custom rental pricing rules
+- Late fee penalty automation
+- SMS/Email notifications
 - Daha detayli kiralama raporlari
 - Gec iade cezasi
 - Hasar ucreti
