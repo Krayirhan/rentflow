@@ -2,12 +2,16 @@
 
 RentFlow, Java 17 ile gelistirilmis katmanli mimariye sahip bir arac kiralama sistemidir.
 
-Bu proje; Java OOP, service-repository mimarisi, exception yonetimi, Maven ve JUnit testleri ogrenmek amaciyla gelistirilmistir.
+Bu proje; Java OOP, service-repository mimarisi, exception yonetimi, Maven, JUnit testleri ve Spring Boot REST API ogrenmek amaciyla gelistirilmistir.
 
-**Sürüm 2.0**: JavaFX GUI ile masaüstü uygulaması
+**Sürüm 3.0**: Spring Boot REST API ile backend hizmeti
 
 ## Ozellikler
 
+- **REST API (Spring Boot)** ✨ NEW
+  - Vehicle endpoints
+  - Customer endpoints  
+  - Rental endpoints
 - **GUI Arayüzü (JavaFX)**
   - Tabbed interface
   - Araba ve motosiklet kiralama
@@ -33,26 +37,43 @@ Bu proje; Java OOP, service-repository mimarisi, exception yonetimi, Maven ve JU
 ## Kullanilan Teknolojiler
 
 - Java 17
+- Spring Boot 3.2
 - JavaFX 21
 - Maven
 - JUnit 5
 - OOP
 - Repository Pattern
 - Service Layer Pattern
+- REST API
 
 ## Proje Yapisi
 
 ```text
 src/main/java/com/rentflow
+├── api (NEW - Spring Boot REST)
+│   ├── RentFlowRestApplication.java
+│   ├── controller/
+│   │   ├── VehicleRestController.java
+│   │   ├── CustomerRestController.java
+│   │   └── RentalRestController.java
+│   └── handler/
+│       └── GlobalExceptionHandler.java
 ├── app
 │   ├── Main.java (Console - Legacy)
 │   ├── RentFlowApplication.java (JavaFX GUI)
 │   └── DataInitializer.java
+├── service
+│   ├── api/ (NEW - Interfaces)
+│   │   ├── IVehicleService.java
+│   │   ├── ICustomerService.java
+│   │   └── IRentalService.java
+│   ├── VehicleService.java
+│   ├── CustomerService.java
+│   └── RentalService.java
 ├── enums
 ├── exception
 ├── model
 ├── repository
-├── service
 ├── ui
 │   ├── console (Legacy)
 │   │   ├── menu
@@ -61,17 +82,9 @@ src/main/java/com/rentflow
 │   │   └── printer
 │   └── fx (JavaFX GUI)
 │       ├── MainWindow.java
-│       ├── tab
-│       │   ├── VehicleTab.java
-│       │   ├── CustomerTab.java
-│       │   └── RentalTab.java
-│       ├── dialog
-│       │   ├── AddVehicleDialog.java
-│       │   ├── AddCustomerDialog.java
-│       │   ├── CalculatePriceDialog.java
-│       │   └── RentVehicleDialog.java
-│       └── util
-│           └── AlertUtil.java
+│       ├── tab/
+│       ├── dialog/
+│       └── util/
 └── persistence
 ```
 
@@ -177,16 +190,33 @@ Projeyi test et:
 mvn clean test
 ```
 
-**GUI Uygulamasini calistir:**
+**REST API'yi başlat (Spring Boot):**
+
+```bash
+mvn spring-boot:run
+```
+
+Ardindan Postman'da şu endpoint'lere istek gönderebilirsin:
+- GET http://localhost:8080/api/vehicles
+- GET http://localhost:8080/api/customers
+- GET http://localhost:8080/api/rentals
+- POST http://localhost:8080/api/vehicles (JSON body ile)
+
+**GUI Uygulamasini calistir (JavaFX):**
 
 ```bash
 mvn javafx:run
 ```
 
-Ardindan IDE uzerinden `RentFlowApplication.java` dosyasini da calistirabilirsin.
+**Versiyonlar:**
+
+- **v1.0**: Console Application - `mvn clean compile exec:java -Dexec.mainClass=com.rentflow.app.Main`
+- **v2.0**: JavaFX GUI - `mvn javafx:run`
+- **v3.0**: Spring Boot REST API - `mvn spring-boot:run` (NEW)
 
 Ana siniflar:
 
+- **REST API**: `com.rentflow.api.RentFlowRestApplication`
 - **GUI**: `com.rentflow.app.RentFlowApplication`
 - **Console** (legacy): `com.rentflow.app.Main`
 
@@ -256,29 +286,33 @@ Bu proje ile pratik edilen Java/OOP konulari:
 
 ## Mevcut Durum
 
-RentFlow su anda Java OOP console project v1.0 seviyesindedir.
+RentFlow su anda Java OOP backend + frontend v3.0 seviyesindedir.
 
 Tamamlananlar:
 
 - Katmanli mimari
-- UI refactor
+- UI refactor (Console + JavaFX GUI)
 - Repository-Service ayrimi
 - Musteri, arac ve kiralama domain yapisi
 - Ozel exception sistemi
 - Maven + JUnit test altyapisi
 - Basarili build ve test sureci
-- CSV veya JSON ile kalici veri saklama
-- Repository interface ayriminin genisletilmesi
+- CSV ve In-Memory persistence
+- Spring Boot REST API
+- Global exception handling
+- Service interface'leri
 
 ## Gelecek Gelistirmeler
 
 Planlanan olasi gelistirmeler:
 
-- Spring Boot framework'e migration
-- REST API layer
-- Veritabani (PostgreSQL/MySQL) entegrasyonu
-- Authentication ve Authorization
+- Database (PostgreSQL/MySQL) entegrasyonu
+- JPA/Hibernate ORM
+- Authentication ve Authorization (JWT)
+- React web UI
 - Docker containerization
+- CI/CD pipeline (GitHub Actions)
+- Load testing ve performance optimization
 - Daha detayli kiralama raporlari
 - Gec iade cezasi
 - Hasar ucreti
